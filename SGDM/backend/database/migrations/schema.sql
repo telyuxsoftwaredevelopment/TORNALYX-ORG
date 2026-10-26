@@ -173,6 +173,10 @@ CREATE TABLE IF NOT EXISTS resultados (
     ganador_id      INT UNSIGNED DEFAULT NULL,      -- NULL = empate
     observaciones   TEXT DEFAULT NULL,
     cargado_por     INT UNSIGNED NOT NULL,          -- usuario_id del que cargó
+    firma_payload   TEXT DEFAULT NULL,
+    firma_digital   TEXT DEFAULT NULL,
+    firma_algoritmo VARCHAR(32) DEFAULT NULL,
+    firmado_at      TIMESTAMP NULL DEFAULT NULL,
     created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_resultado_partido
         FOREIGN KEY (partido_id) REFERENCES partidos(id) ON DELETE CASCADE,
@@ -349,6 +353,7 @@ INSERT IGNORE INTO schema_migrations (filename) VALUES
     ('add_2fa.sql'),
     ('add_avatar_blob.sql'),
     ('add_doc_acceso.sql'),
+    ('add_firma_resultados.sql'),
     ('add_nickname_tag.sql'),
     ('add_perfil.sql'),
     ('add_redes_sociales.sql'),

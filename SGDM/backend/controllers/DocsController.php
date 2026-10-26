@@ -328,7 +328,8 @@ class DocsController extends Controller {
     /** Base absoluta (esquema + host) para armar enlaces en los correos. */
     private function baseUrl(): string {
         $https  = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-                  || ((string) ($_SERVER['SERVER_PORT'] ?? '') === '443');
+                  || ((string) ($_SERVER['SERVER_PORT'] ?? '') === '443')
+                  || strtolower(trim(explode(',', (string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0])) === 'https';
         $scheme = $https ? 'https' : 'http';
         $host   = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
         return $scheme . '://' . $host;

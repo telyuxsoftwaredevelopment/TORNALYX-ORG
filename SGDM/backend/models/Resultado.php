@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/Model.php';
+require_once __DIR__ . '/../shared/FirmaResultado.php';
 
 /**
  * Modelo de Resultado. Registra y consulta resultados de partidos.
@@ -30,6 +31,9 @@ class Resultado extends Model {
         ?int $ganadorId,
         int $cargadoPor
     ): int {
+        $transaccionPropia = !$this->db->inTransaction();
+        if ($transaccionPropia) $this->db->beginTransaction();
+        try {
         $stmt = $this->db->prepare(
             'INSERT INTO resultados
                 (partido_id, goles_local, goles_visitante, ganador_id, cargado_por)
@@ -46,9 +50,51 @@ class Resultado extends Model {
             "UPDATE partidos SET estado = 'finalizado' WHERE id = ?"
         )->execute([$partidoId]);
 
-        $stmt = $this->db->prepare('SELECT id FROM resultados WHERE partido_id = ?');
+        $stmt = $this->db->prepare(
+            'SELECT id, partido_id, goles_local, goles_visitante, ganador_id, cargado_por
+               FROM resultados WHERE partido_id = ?'
+        );
         $stmt->execute([$partidoId]);
-        return (int) $stmt->fetchColumn();
+        $fila = $stmt->fetch();
+        if (!$fila) throw new RuntimeException('No se pudo recuperar el resultado guardado.');
+
+        $payload = FirmaResultado::payload($fila);
+        $firma = FirmaResultado::firmar($payload);
+        $actualizarFirma = $this->db->prepare(
+            'UPDATE resultados SET firma_payload = ?, firma_digital = ?,
+                    firma_algoritmo = ?, firmado_at = ? WHERE id = ?'
+        );
+        $actualizarFirma->execute([
+            $firma === null ? null : $payload,
+            $firma,
+            $firma === null ? null : 'RSA-SHA256',
+            $firma === null ? null : date('Y-m-d H:i:s'),
+            (int) $fila['id'],
+        ]);
+        if ($transaccionPropia) $this->db->commit();
+        return (int) $fila['id'];
+        } catch (Throwable $e) {
+            if ($transaccionPropia && $this->db->inTransaction()) $this->db->rollBack();
+            throw $e;
+        }
+    }
+
+    /** Devuelve valida, invalida, sin_firma o clave_no_disponible; null si no existe. */
+    public function verificarFirma(int $resultadoId): ?string {
+        $stmt = $this->db->prepare(
+            'SELECT partido_id, goles_local, goles_visitante, ganador_id, cargado_por,
+                    firma_payload, firma_digital, firma_algoritmo
+               FROM resultados WHERE id = ?'
+        );
+        $stmt->execute([$resultadoId]);
+        $fila = $stmt->fetch();
+        if (!$fila) return null;
+        if (!$fila['firma_payload'] || !$fila['firma_digital']
+            || $fila['firma_algoritmo'] !== 'RSA-SHA256') return 'sin_firma';
+        $payloadActual = FirmaResultado::payload($fila);
+        if (!hash_equals($fila['firma_payload'], $payloadActual)) return 'invalida';
+        $valida = FirmaResultado::verificar($fila['firma_payload'], $fila['firma_digital']);
+        return $valida === null ? 'clave_no_disponible' : ($valida ? 'valida' : 'invalida');
     }
 
     /**

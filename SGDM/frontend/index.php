@@ -125,6 +125,7 @@ $router->post('/api/torneo/crear',     static fn() => (new TorneoController())->
 // Torneo por ID: /api/torneo/42 (la restricción \d+ evita que "abc" matchee).
 $router->get('#^/api/torneo/(\d+)$#',               static fn($id) => (new TorneoController())->show((int) $id));
 $router->get('#^/api/torneo/(\d+)/partidos$#',      static fn($id) => (new PartidoController())->listar((int) $id));
+$router->get('#^/api/resultado/(\d+)/verificar$#',   static fn($id) => (new PartidoController())->verificarResultado((int) $id));
 $router->get('#^/api/torneo/(\d+)/inscripciones$#', static fn($id) => (new InscripcionController())->listar((int) $id));
 $router->get('#^/api/torneo/(\d+)/avisos$#',        static fn($id) => (new AvisoController())->deTorneo((int) $id));
 $router->post('#^/api/torneo/(\d+)/editar$#',       static fn($id) => (new TorneoController())->actualizar((int) $id));

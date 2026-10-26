@@ -16,6 +16,8 @@ SGDM/frontend/_preview/
 
 # Dependencias
 /vendor/
+SGDM/backend/vendor/
+SGDM/backend/.phpunit.cache/
 node_modules/
 
 # Logs

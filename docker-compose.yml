@@ -36,9 +36,10 @@ services:
       - tornalyx_db_data:/var/lib/mysql
       # Scripts de inicialización: MySQL los ejecuta en orden alfabético
       # SOLO la primera vez (cuando el volumen está vacío).
-      # Se carga únicamente el schema (sin datos de prueba). Las migraciones de
-      # SGDM/backend/database/migrations/ ya están plegadas en schema.sql.
+      # Se carga el schema y una muestra sintética para desarrollo. Ambos
+      # scripts corren solo cuando el volumen MySQL está vacío.
       - ./SGDM/backend/database/migrations/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./SGDM/backend/database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
     healthcheck:
       # `app` espera a que MySQL responda antes de arrancar.
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]

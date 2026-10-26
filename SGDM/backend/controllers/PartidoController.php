@@ -48,6 +48,20 @@ class PartidoController extends Controller {
         $this->jsonSuccess(['partidos' => $this->partidoModel->listarPorTorneo($torneoId)]);
     }
 
+    /** Verifica públicamente la firma de un resultado por su ID. */
+    public function verificarResultado(int $resultadoId): void {
+        if ($resultadoId < 1) {
+            $this->jsonError('Resultado no encontrado.', [], 404);
+            return;
+        }
+        $estado = (new Resultado())->verificarFirma($resultadoId);
+        if ($estado === null) {
+            $this->jsonError('Resultado no encontrado.', [], 404);
+            return;
+        }
+        $this->jsonSuccess(['estado_firma' => $estado]);
+    }
+
     /**
      * Genera la siguiente ronda del torneo (POST /api/torneo/fixture).
      * En liga crea el calendario completo; en eliminación y suizo, una ronda.

@@ -1,0 +1,11 @@
+{
+  "name": "telyux/tornalyx-backend-tests",
+  "description": "Dependencias de desarrollo y pruebas de Tornalyx",
+  "type": "project",
+  "require-dev": {
+    "phpunit/phpunit": "^11.0"
+  },
+  "scripts": {
+    "test": "phpunit"
+  }
+}

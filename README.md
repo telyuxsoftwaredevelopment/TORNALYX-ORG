@@ -313,6 +313,34 @@ Pruebas contempladas:
 * Testing de seguridad.
 * Validación de requisitos.
 
+Pruebas ejecutables del motor de fixtures:
+
+```bash
+cd SGDM/backend
+composer install
+composer test
+```
+
+La base inicial de Docker incluye datos sintéticos de desarrollo. Para cargarlos
+en una base ya inicializada, creá un volumen nuevo con `docker compose down -v`
+y luego `docker compose up --build`; esto elimina los datos locales actuales.
+No ejecutar esa operación si se quieren conservar datos.
+
+El plan de pruebas, la matriz de calidad, el cuestionario de percepción y la
+revisión OWASP están en `SGDM/backend/docs/`.
+
+El modelo de requisitos, casos de uso, factibilidad, contingencia, estimación y
+manuales operativos también están en `SGDM/backend/docs/`. La firma RSA-SHA256
+de resultados se activa al configurar las variables de clave descritas en la
+guía de instalación del servidor.
+
+Documentación añadida:
+
+- `SGDM/backend/docs/ingenieria-software-entregas.md`: ESRE, requisitos, casos de uso, modelo, factibilidad, contingencia, puntos de función y cronograma.
+- `SGDM/backend/docs/plan-testing.md`, `calidad-software.md` y `encuesta-calidad.md`.
+- `SGDM/backend/docs/manual-usuario.md` y `manual-administrador.md`.
+- `SGDM/backend/docs/guia-instalacion-servidor.md`: instalación y seguridad del host AlmaLinux.
+
 ---
 
 ## 🤝 Equipo de Desarrollo
